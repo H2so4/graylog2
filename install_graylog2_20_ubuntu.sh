@@ -24,11 +24,9 @@ exec > >(tee "./graylog2/install_graylog2.log")
 mongodb_server=$GRAYLOG_MONGODB_SERVER
 elasticsearch_server=$GRAYLOG_ELASTICSEARCH_SERVER
 
-[[ -z $mongodb_server ]] && mongodb_server=127.0.0.1
-[[ -z $elasticsearch_server ]] && elasticsearch_server=127.0.0.1
 
 # Install mongodb
-install_mongo(){
+install_mongodb(){
   echo "Installing MongoDB"
   apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
   echo "deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen" | tee /etc/apt/sources.list.d/10gen.list
@@ -47,6 +45,7 @@ install_elasticsearch()
   sed -i -e 's|# cluster.name: elasticsearch|cluster.name: graylog2|' /etc/elasticsearch/elasticsearch.yml
 }
 
+
 echo "Detecting IP Address"
 IPADDY="$(ifconfig | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"
 echo "Detected IP Address is $IPADDY"
@@ -63,14 +62,14 @@ apt-get -qq update
 # apt-get -y install git curl libcurl4-openssl-dev libapr1-dev libcurl4-openssl-dev libapr1-dev build-essential openssl libreadline6 libreadline6-dev curl git-core zlib1g zlib1g-dev libssl-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt-dev autoconf libc6-dev ncurses-dev automake libtool bison subversion pkg-config python-software-properties software-properties-common openjdk-7-jre pwgen
 apt-get -y install git curl build-essential openjdk-7-jre-headless pwgen wget
 
+
 # Download Elasticsearch, Graylog2-Server and Graylog2-Web-Interface
 echo "Downloading and installing Elastic Search and MongoDB locally - ONLY if the server is not specified (defaults to: 127.0.0.1)"
-cd /opt
-[[ "$elasticsearch_server" != "127.0.0.1" ]] && install_elasticsearch()
-[[ "$mongodb_server" != "127.0.0.1" ]] && install_mongodb()
+[[ -z $mongodb_server ]] && mongodb_server=127.0.0.1 && install_mongodb()
+[[ -z $elasticsearch_server ]] && elasticsearch_server=127.0.0.1 && install_elasticsearch()
 
 echo "Downloading Graylog2-Server and Graylog2-Web-Interface to /opt"
-
+cd /opt
 wget https://github.com/Graylog2/graylog2-server/releases/download/0.20.1/graylog2-server-0.20.1.tgz
 wget https://github.com/Graylog2/graylog2-web-interface/releases/download/0.20.1/graylog2-web-interface-0.20.1.tgz
 
