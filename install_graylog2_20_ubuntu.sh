@@ -26,6 +26,26 @@ elasticsearch_server=$GRAYLOG_ELASTICSEARCH_SERVER
 [[ -z $mongodb_server ]] && mongodb_server=127.0.0.1
 [[ -z $elasticsearch_server ]] && elasticsearch_server=127.0.0.1
 
+# Install mongodb
+install_mongo(){
+  echo "Installing MongoDB"
+  apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
+  echo "deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen" | tee /etc/apt/sources.list.d/10gen.list
+  apt-get -qq update
+  apt-get -y install mongodb-10gen
+  service mongodb restart
+}
+
+install_elasticsearch()
+{
+  cd /opt
+  wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-0.90.10.deb
+  # Install elasticsearch
+  echo "Installing elasticsearch"
+  dpkg -i elasticsearch-0.90.10.deb
+  sed -i -e 's|# cluster.name: elasticsearch|cluster.name: graylog2|' /etc/elasticsearch/elasticsearch.yml
+}
+
 echo "Detecting IP Address"
 IPADDY="$(ifconfig | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"
 echo "Detected IP Address is $IPADDY"
@@ -43,9 +63,13 @@ apt-get -qq update
 apt-get -y install git curl build-essential openjdk-7-jre-headless pwgen wget
 
 # Download Elasticsearch, Graylog2-Server and Graylog2-Web-Interface
-echo "Downloading Elastic Search, Graylog2-Server and Graylog2-Web-Interface to /opt"
+echo "Downloading and installing Elastic Search and MongoDB locally - ONLY if the server is not specified (defaults to: 127.0.0.1)"
 cd /opt
-wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-0.90.10.deb
+[[ "$elasticsearch_server" != "127.0.0.1" ]] && install_elasticsearch()
+[[ "$mongodb_server" != "127.0.0.1" ]] && install_mongodb()
+
+echo "Downloading Graylog2-Server and Graylog2-Web-Interface to /opt"
+
 wget https://github.com/Graylog2/graylog2-server/releases/download/0.20.1/graylog2-server-0.20.1.tgz
 wget https://github.com/Graylog2/graylog2-web-interface/releases/download/0.20.1/graylog2-web-interface-0.20.1.tgz
 
@@ -60,21 +84,6 @@ done
 echo "Creating SymLink Graylog2-server"
 ln -s graylog2-server-0.2*/ graylog2-server
 
-# Install elasticsearch
-echo "Installing elasticsearch"
-dpkg -i elasticsearch-0.90.10.deb
-sed -i -e 's|# cluster.name: elasticsearch|cluster.name: graylog2|' /etc/elasticsearch/elasticsearch.yml
-
-# Test elasticsearch
-# curl -XGET 'http://localhost:9200/_cluster/health?pretty=true'
-
-# Install mongodb
-echo "Installing MongoDB"
-apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
-echo "deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen" | tee /etc/apt/sources.list.d/10gen.list
-apt-get -qq update
-apt-get -y install mongodb-10gen
-service mongodb restart
 
 # Making changes to /etc/security/limits.conf to allow more open files for elasticsearch
 mv /etc/security/limits.conf /etc/security/limits.bak
