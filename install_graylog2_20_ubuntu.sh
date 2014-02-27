@@ -19,6 +19,13 @@ exec > >(tee "./graylog2/install_graylog2.log")
 # exit 1
 # fi
 
+# Get mongodb and elasticsearch server information from env variables
+mongodb_server=$GRAYLOG_MONGODB_SERVER
+elasticsearch_server=$GRAYLOG_ELASTICSEARCH_SERVER
+
+[[ -z $mongodb_server ]] && mongodb_server=127.0.0.1
+[[ -z $elasticsearch_server ]] && elasticsearch_server=127.0.0.1
+
 echo "Detecting IP Address"
 IPADDY="$(ifconfig | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"
 echo "Detected IP Address is $IPADDY"
@@ -91,6 +98,8 @@ sed -i -e 's|password_secret =|password_secret = '$pass_secret'|' /etc/graylog2.
 sed -i -e "s|root_password_sha2 =|root_password_sha2 = ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f|" /etc/graylog2.conf
 sed -i -e 's|elasticsearch_shards = 4|elasticsearch_shards = 1|' /etc/graylog2.conf
 sed -i -e 's|mongodb_useauth = true|mongodb_useauth = false|' /etc/graylog2.conf
+sed -i -e "s|mongodb_host.*|mongodb_host = $mongodb_server|g" /etc/graylog2.conf
+sed -i -e "s|elasticsearch_discovery_zen_ping_unicast_hosts.*|elasticsearch_discovery_zen_ping_unicast_hosts = $elasticsearch_server:9300|g" /etc/graylog2.conf
 sed -i -e 's|#elasticsearch_discovery_zen_ping_multicast_enabled = false|elasticsearch_discovery_zen_ping_multicast_enabled = false|' /etc/graylog2.conf
 sed -i -e 's|#elasticsearch_discovery_zen_ping_unicast_hosts = 192.168.1.203:9300|elasticsearch_discovery_zen_ping_unicast_hosts = 127.0.0.1:9300|' /etc/graylog2.conf
 # Setting new retention policy setting or Graylog2 Server will not start
