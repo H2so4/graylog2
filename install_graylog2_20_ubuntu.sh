@@ -43,6 +43,8 @@ install_elasticsearch()
   echo "Installing elasticsearch"
   dpkg -i elasticsearch-0.90.10.deb
   sed -i -e 's|# cluster.name: elasticsearch|cluster.name: graylog2|' /etc/elasticsearch/elasticsearch.yml
+  # Restart elasticsearch
+  service elasticsearch restart
 }
 
 
@@ -95,8 +97,6 @@ echo "elasticsearch soft nofile 32000" >> /etc/security/limits.conf
 echo "elasticsearch hard nofile 32000" >> /etc/security/limits.conf
 echo "# End of file" >> /etc/security/limits.conf
 
-# Restart elasticsearch
-service elasticsearch restart
 
 # Install graylog2-server
 echo "Installing graylog2-server"
@@ -111,9 +111,9 @@ sed -i -e "s|root_password_sha2 =|root_password_sha2 = ef92b778bafe771e89245b89e
 sed -i -e 's|elasticsearch_shards = 4|elasticsearch_shards = 1|' /etc/graylog2.conf
 sed -i -e 's|mongodb_useauth = true|mongodb_useauth = false|' /etc/graylog2.conf
 sed -i -e "s|mongodb_host.*|mongodb_host = $mongodb_server|g" /etc/graylog2.conf
-sed -i -e "s|elasticsearch_discovery_zen_ping_unicast_hosts.*|elasticsearch_discovery_zen_ping_unicast_hosts = $elasticsearch_server:9300|g" /etc/graylog2.conf
+sed -i -e "s|.*elasticsearch_discovery_zen_ping_unicast_hosts.*|elasticsearch_discovery_zen_ping_unicast_hosts = $elasticsearch_server:9300|g" /etc/graylog2.conf
 sed -i -e 's|#elasticsearch_discovery_zen_ping_multicast_enabled = false|elasticsearch_discovery_zen_ping_multicast_enabled = false|' /etc/graylog2.conf
-sed -i -e 's|#elasticsearch_discovery_zen_ping_unicast_hosts = 192.168.1.203:9300|elasticsearch_discovery_zen_ping_unicast_hosts = 127.0.0.1:9300|' /etc/graylog2.conf
+# sed -i -e 's|#elasticsearch_discovery_zen_ping_unicast_hosts = 192.168.1.203:9300|elasticsearch_discovery_zen_ping_unicast_hosts = 127.0.0.1:9300|' /etc/graylog2.conf
 # Setting new retention policy setting or Graylog2 Server will not start
 sed -i 's|retention_strategy = delete|retention_strategy = close|' /etc/graylog2.conf
 
