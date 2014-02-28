@@ -334,9 +334,9 @@ chown -R root:root /opt/graylog2*
 
 # Cleaning up /opt
 echo "Cleaning up"
-rm /opt/graylog2-server*.*gz
-rm /opt/graylog2-web-interface*.*gz
-rm /opt/elasticsearch-0.90.10.deb
+rm -f /opt/graylog2-server*.*gz
+rm -f /opt/graylog2-web-interface*.*gz
+rm -f /opt/elasticsearch-0.90.10.deb
 
 # Restart All Services
 echo "Restarting All Services Required for Graylog2 to work"
