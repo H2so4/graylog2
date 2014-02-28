@@ -85,7 +85,7 @@ done
 
 # Create Symbolic Links
 echo "Creating SymLink Graylog2-server"
-ln -s graylog2-server-0.2*/ graylog2-server
+ln -sf graylog2-server-0.2*/ graylog2-server
 
 
 # Making changes to /etc/security/limits.conf to allow more open files for elasticsearch
@@ -219,7 +219,7 @@ service graylog2-server start
 # Install graylog2 web interface
 echo "Installing graylog2-web-interface"
 cd /opt/
-ln -s graylog2-web-interface-0.2*/ graylog2-web-interface
+ln -sf graylog2-web-interface-0.2*/ graylog2-web-interface
 
 echo "Creating Graylog2-web-interface startup script"
 (
