@@ -23,7 +23,7 @@ exec > >(tee "./graylog2/install_graylog2.log")
 # Get mongodb and elasticsearch server information from env variables
 mongodb_server=$GRAYLOG_MONGODB_SERVER
 elasticsearch_servers=$GRAYLOG_ELASTICSEARCH_UNICAST_HOSTS
-
+[[ -z $GRAYLOG_MASTER ]] && $GRAYLOG_MASTER=false
 
 # Install mongodb
 install_mongodb(){
@@ -100,6 +100,8 @@ echo "Installing graylog2-server"
 cd graylog2-server/
 cp /opt/graylog2-server/graylog2.conf{.example,}
 mv graylog2.conf /etc/
+
+
 #ln -s /opt/graylog2-server/graylog2.conf /etc/graylog2.conf
 pass_secret=$(pwgen -s 96)
 sed -i -e 's|password_secret =|password_secret = '$pass_secret'|' /etc/graylog2.conf
@@ -108,6 +110,7 @@ sed -i -e "s|root_password_sha2 =|root_password_sha2 = ef92b778bafe771e89245b89e
 sed -i -e 's|elasticsearch_shards = 4|elasticsearch_shards = 1|' /etc/graylog2.conf
 sed -i -e 's|mongodb_useauth = true|mongodb_useauth = false|' /etc/graylog2.conf
 sed -i -e "s|mongodb_host.*|mongodb_host = $mongodb_server|g" /etc/graylog2.conf
+sed -i -e "s|.*is_master.*|is_master = $GRAYLOG_MASTER|g" /etc/graylog2.conf
 sed -i -e "s|.*elasticsearch_discovery_zen_ping_unicast_hosts.*|elasticsearch_discovery_zen_ping_unicast_hosts = $elasticsearch_servers|g" /etc/graylog2.conf
 sed -i -e 's|#elasticsearch_discovery_zen_ping_multicast_enabled = false|elasticsearch_discovery_zen_ping_multicast_enabled = false|' /etc/graylog2.conf
 # sed -i -e 's|#elasticsearch_discovery_zen_ping_unicast_hosts = 192.168.1.203:9300|elasticsearch_discovery_zen_ping_unicast_hosts = 127.0.0.1:9300|' /etc/graylog2.conf
