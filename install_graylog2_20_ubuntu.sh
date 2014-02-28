@@ -22,7 +22,7 @@ exec > >(tee "./graylog2/install_graylog2.log")
 
 # Get mongodb and elasticsearch server information from env variables
 mongodb_server=$GRAYLOG_MONGODB_SERVER
-elasticsearch_server=$GRAYLOG_ELASTICSEARCH_SERVER
+elasticsearch_servers=$GRAYLOG_ELASTICSEARCH_UNICAST_HOSTS
 
 
 # Install mongodb
@@ -68,7 +68,7 @@ apt-get -y install git curl build-essential openjdk-7-jre-headless pwgen wget
 # Download Elasticsearch, Graylog2-Server and Graylog2-Web-Interface
 echo "Downloading and installing Elastic Search and MongoDB locally - ONLY if the server is not specified (defaults to: 127.0.0.1)"
 [[ -z $mongodb_server ]] && mongodb_server=127.0.0.1 && install_mongodb
-[[ -z $elasticsearch_server ]] && elasticsearch_server=127.0.0.1 && install_elasticsearch
+[[ -z $elasticsearch_servers ]] && elasticsearch_servers=127.0.0.1 && install_elasticsearch
 
 echo "Downloading Graylog2-Server and Graylog2-Web-Interface to /opt"
 cd /opt
@@ -108,7 +108,7 @@ sed -i -e "s|root_password_sha2 =|root_password_sha2 = ef92b778bafe771e89245b89e
 sed -i -e 's|elasticsearch_shards = 4|elasticsearch_shards = 1|' /etc/graylog2.conf
 sed -i -e 's|mongodb_useauth = true|mongodb_useauth = false|' /etc/graylog2.conf
 sed -i -e "s|mongodb_host.*|mongodb_host = $mongodb_server|g" /etc/graylog2.conf
-sed -i -e "s|.*elasticsearch_discovery_zen_ping_unicast_hosts.*|elasticsearch_discovery_zen_ping_unicast_hosts = $elasticsearch_server:9300|g" /etc/graylog2.conf
+sed -i -e "s|.*elasticsearch_discovery_zen_ping_unicast_hosts.*|elasticsearch_discovery_zen_ping_unicast_hosts = $elasticsearch_servers|g" /etc/graylog2.conf
 sed -i -e 's|#elasticsearch_discovery_zen_ping_multicast_enabled = false|elasticsearch_discovery_zen_ping_multicast_enabled = false|' /etc/graylog2.conf
 # sed -i -e 's|#elasticsearch_discovery_zen_ping_unicast_hosts = 192.168.1.203:9300|elasticsearch_discovery_zen_ping_unicast_hosts = 127.0.0.1:9300|' /etc/graylog2.conf
 # Setting new retention policy setting or Graylog2 Server will not start
@@ -357,7 +357,7 @@ echo "Login with password: password123"
 echo "You Entered $SERVERNAME During Install"
 echo "Browse to http://$SERVERNAME:9000 If Different"
 echo "*****************************************"
-echo "ElasticSearch server location: $elasticsearch_server"
+echo "ElasticSearch server location: $elasticsearch_servers"
 echo "MongoDB server location: $mongodb_server"
 echo "*****************************************\n"
 echo "EveryThingShouldBeVirtual.com"
