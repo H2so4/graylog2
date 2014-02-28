@@ -68,8 +68,8 @@ apt-get -y install git curl build-essential openjdk-7-jre-headless pwgen wget
 # Download Elasticsearch, Graylog2-Server and Graylog2-Web-Interface
 echo "Downloading and installing Elastic Search and MongoDB locally - ONLY if the server is not specified (defaults to: 127.0.0.1)"
 [[ -z $mongodb_server ]] && mongodb_server=127.0.0.1 && install_mongodb
-[[ -z $elasticsearch_servers ]] && elasticsearch_servers=127.0.0.1 && install_elasticsearch
-
+# [[ -z $elasticsearch_servers ]] && elasticsearch_servers=127.0.0.1 && install_elasticsearch
+[[ -z $elasticsearch_servers ]] && elasticsearch_servers=127.0.0.1:9300 && install_elasticsearch
 echo "Downloading Graylog2-Server and Graylog2-Web-Interface to /opt"
 cd /opt
 wget https://github.com/Graylog2/graylog2-server/releases/download/0.20.1/graylog2-server-0.20.1.tgz
