@@ -69,10 +69,7 @@ apt-get -y install git curl build-essential openjdk-7-jre-headless pwgen wget
 echo "Downloading and installing Elastic Search and MongoDB locally - ONLY if the server is not specified (defaults to: 127.0.0.1)"
 [[ -z $mongodb_server ]] && mongodb_server=127.0.0.1 && install_mongodb
 [[ -z $elasticsearch_server ]] && elasticsearch_server=127.0.0.1 && install_elasticsearch
-echo "*****************************************"
-echo "ElasticSearch server location: $elasticsearch_server"
-echo "MongoDB server location: $mongodb_server"
-echo "*****************************************\n"
+
 echo "Downloading Graylog2-Server and Graylog2-Web-Interface to /opt"
 cd /opt
 wget https://github.com/Graylog2/graylog2-server/releases/download/0.20.1/graylog2-server-0.20.1.tgz
@@ -204,7 +201,7 @@ case "$CMD" in
         RETVAL=1
 esac
 EOF
-) | tee /etc/init.d/graylog2-server
+) > /etc/init.d/graylog2-server
 
 # Make graylog2-server executable
 chmod +x /etc/init.d/graylog2-server
@@ -304,7 +301,7 @@ echo "Usage $0 {start|stop|restart|status}"
 RETVAL=1
 esac
 EOF
-) | tee /etc/init.d/graylog2-web-interface
+) > /etc/init.d/graylog2-web-interface
 
 # Make graylog2-web-interface executable
 chmod +x /etc/init.d/graylog2-web-interface
@@ -359,5 +356,9 @@ echo "Login with username: admin"
 echo "Login with password: password123"
 echo "You Entered $SERVERNAME During Install"
 echo "Browse to http://$SERVERNAME:9000 If Different"
+echo "*****************************************"
+echo "ElasticSearch server location: $elasticsearch_server"
+echo "MongoDB server location: $mongodb_server"
+echo "*****************************************\n"
 echo "EveryThingShouldBeVirtual.com"
 echo "@mrlesmithjr"
